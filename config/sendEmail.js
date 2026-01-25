@@ -1,37 +1,31 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,        // use 587 (more reliable than 465 on cloud)
-  secure: false,   // STARTTLS
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Gmail App Password
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  connectionTimeout: 15000,
 });
 
 async function sendOtpEmail(toEmail, otp) {
   try {
     await transporter.sendMail({
-      from: `"My App" <${process.env.EMAIL_USER}>`,
+      from: `"My App" <anurag1922004@gmail.com>`, // verified sender
       to: toEmail,
       subject: "Your OTP Verification Code",
       html: `
         <h2>Email Verification</h2>
-        <p>Your OTP is:</p>
         <h1>${otp}</h1>
         <p>This OTP will expire in 5 minutes.</p>
       `,
     });
 
-    console.log("OTP email sent");
-  } catch (error) {
-    console.error("EMAIL ERROR:", error);
-    throw error;
+    console.log("OTP sent via Brevo SMTP");
+  } catch (err) {
+    console.error("BREVO MAIL ERROR:", err);
   }
 }
 
