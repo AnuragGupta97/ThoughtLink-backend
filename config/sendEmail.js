@@ -1,11 +1,23 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,        // use 587 (more reliable than 465 on cloud)
+  secure: false,   // STARTTLS
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS, // Gmail App Password
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+  connectionTimeout: 15000,
+});
 
 async function sendOtpEmail(toEmail, otp) {
   try {
-    await resend.emails.send({
-      from: "My App <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"My App" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject: "Your OTP Verification Code",
       html: `
@@ -16,9 +28,9 @@ async function sendOtpEmail(toEmail, otp) {
       `,
     });
 
-    console.log("OTP sent via Resend");
+    console.log("OTP email sent");
   } catch (error) {
-    console.error("Resend error:", error);
+    console.error("EMAIL ERROR:", error);
     throw error;
   }
 }
